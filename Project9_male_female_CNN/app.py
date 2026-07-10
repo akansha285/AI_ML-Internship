@@ -36,7 +36,7 @@ model = get_model()
 class_names = ["Female", "Male"]
 
 # ----------------------------
-# Preprocess
+# Preprocess image
 # ----------------------------
 def preprocess_image(image, target_size=(299, 299)):
     image = image.convert("RGB")
@@ -46,13 +46,21 @@ def preprocess_image(image, target_size=(299, 299)):
     return img_array
 
 # ----------------------------
+# Session state
+# ----------------------------
+if "last_prediction" not in st.session_state:
+    st.session_state.last_prediction = None
+if "last_confidence" not in st.session_state:
+    st.session_state.last_confidence = None
+
+# ----------------------------
 # Custom CSS
 # ----------------------------
 st.markdown("""
 <style>
-/* ---------------- GLOBAL ---------------- */
-html, body, [class*="css"]  {
-    font-family: 'Segoe UI', sans-serif;
+/* ========== GLOBAL ========== */
+html, body, [class*="css"] {
+    font-family: "Segoe UI", sans-serif;
 }
 
 .stApp {
@@ -70,7 +78,7 @@ html, body, [class*="css"]  {
     max-width: 1350px;
 }
 
-/* ---------------- HERO ---------------- */
+/* ========== HERO ========== */
 .hero {
     position: relative;
     overflow: hidden;
@@ -81,6 +89,12 @@ html, body, [class*="css"]  {
     box-shadow: 0 20px 60px rgba(0,0,0,0.35);
     backdrop-filter: blur(14px);
     animation: fadeIn 0.9s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 70px rgba(0,0,0,0.40);
 }
 
 .hero::before, .hero::after {
@@ -142,7 +156,7 @@ html, body, [class*="css"]  {
     line-height: 1.65;
 }
 
-/* ---------------- GLASS CARDS ---------------- */
+/* ========== GLASS CARDS ========== */
 .glass-card {
     background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.10);
@@ -151,6 +165,13 @@ html, body, [class*="css"]  {
     box-shadow: 0 14px 40px rgba(0,0,0,0.25);
     backdrop-filter: blur(12px);
     animation: slideUp 0.7s ease;
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border 0.28s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.18);
 }
 
 .section-title {
@@ -160,7 +181,7 @@ html, body, [class*="css"]  {
     margin-bottom: 0.8rem;
 }
 
-/* ---------------- METRIC CARDS ---------------- */
+/* ========== METRIC CARDS ========== */
 .metric-card {
     background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
     border: 1px solid rgba(255,255,255,0.10);
@@ -169,12 +190,28 @@ html, body, [class*="css"]  {
     text-align: center;
     min-height: 120px;
     box-shadow: 0 10px 28px rgba(0,0,0,0.18);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border 0.28s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.08), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
 }
 
 .metric-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 34px rgba(0,0,0,0.28);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 38px rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+.metric-card:hover::before {
+    transform: translateX(100%);
 }
 
 .metric-label {
@@ -189,7 +226,7 @@ html, body, [class*="css"]  {
     color: white;
 }
 
-/* ---------------- FILE UPLOADER ---------------- */
+/* ========== FILE UPLOADER ========== */
 [data-testid="stFileUploader"] {
     background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
     border: 1.5px dashed rgba(255,255,255,0.20);
@@ -197,7 +234,7 @@ html, body, [class*="css"]  {
     padding: 1rem;
 }
 
-/* ---------------- BUTTON ---------------- */
+/* ========== BUTTON ========== */
 .stButton > button {
     width: 100%;
     border: none;
@@ -209,22 +246,33 @@ html, body, [class*="css"]  {
     background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6);
     background-size: 200% 200%;
     box-shadow: 0 14px 28px rgba(124,58,237,0.32);
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
     animation: gradientMove 5s ease infinite;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 18px 34px rgba(236,72,153,0.28);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 20px 36px rgba(236,72,153,0.35);
+    filter: brightness(1.08);
 }
 
-/* ---------------- RESULT CARDS ---------------- */
+.stButton > button:active {
+    transform: scale(0.98);
+}
+
+/* ========== RESULT CARDS ========== */
 .result-card {
     border-radius: 24px;
     padding: 1.4rem;
     margin-top: 1rem;
     box-shadow: 0 16px 40px rgba(0,0,0,0.28);
     animation: fadeIn 0.6s ease;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.35);
 }
 
 .result-female {
@@ -248,7 +296,7 @@ html, body, [class*="css"]  {
     line-height: 1.7;
 }
 
-/* ---------------- CONFIDENCE RING ---------------- */
+/* ========== CONFIDENCE RING ========== */
 .ring-wrap {
     display: flex;
     justify-content: center;
@@ -263,6 +311,12 @@ html, body, [class*="css"]  {
     display: grid;
     place-items: center;
     box-shadow: inset 0 0 25px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.25);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.ring:hover {
+    transform: scale(1.03);
+    box-shadow: inset 0 0 30px rgba(255,255,255,0.08), 0 16px 36px rgba(0,0,0,0.30);
 }
 
 .ring-inner {
@@ -288,7 +342,19 @@ html, body, [class*="css"]  {
     color: #cbd5e1;
 }
 
-/* ---------------- SIDEBAR ---------------- */
+/* ========== IMAGE PREVIEW HOVER ========== */
+.image-hover-wrap {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-hover-wrap:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+/* ========== SIDEBAR ========== */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0f172a 0%, #111827 55%, #0b1220 100%);
     border-right: 1px solid rgba(255,255,255,0.08);
@@ -304,9 +370,16 @@ section[data-testid="stSidebar"] * {
     border-radius: 18px;
     padding: 1rem;
     margin-bottom: 1rem;
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border 0.28s ease;
 }
 
-/* ---------------- FOOTER ---------------- */
+.sidebar-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.16);
+}
+
+/* ========== FOOTER ========== */
 .footer-box {
     margin-top: 1.5rem;
     background: rgba(255,255,255,0.05);
@@ -315,9 +388,15 @@ section[data-testid="stSidebar"] * {
     padding: 1rem;
     text-align: center;
     color: #cbd5e1;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
-/* ---------------- ANIMATIONS ---------------- */
+.footer-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+}
+
+/* ========== ANIMATIONS ========== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
@@ -337,15 +416,7 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # ----------------------------
-# Session state
-# ----------------------------
-if "last_prediction" not in st.session_state:
-    st.session_state.last_prediction = None
-if "last_confidence" not in st.session_state:
-    st.session_state.last_confidence = None
-
-# ----------------------------
-# Hero
+# Hero section
 # ----------------------------
 st.markdown("""
 <div class="hero">
@@ -353,8 +424,8 @@ st.markdown("""
         <div class="hero-badge">✨ Premium AI Vision Interface</div>
         <h1 class="hero-title">VisionGender AI — Male / Female Image Classifier</h1>
         <p class="hero-subtitle">
-            A polished AI-powered image classification experience with cinematic UI, animated insights,
-            dynamic prediction cards, confidence visualization, and interactive result celebration.
+            Upload an image and get an AI-powered gender prediction with a polished dashboard, dynamic result cards,
+            hover interactions, animated confidence visuals, and a more impressive project presentation.
         </p>
     </div>
 </div>
@@ -366,6 +437,7 @@ st.write("")
 # Top metrics
 # ----------------------------
 m1, m2, m3 = st.columns(3)
+
 with m1:
     st.markdown("""
     <div class="metric-card">
@@ -373,6 +445,7 @@ with m1:
         <div class="metric-value">CNN / Keras</div>
     </div>
     """, unsafe_allow_html=True)
+
 with m2:
     st.markdown("""
     <div class="metric-card">
@@ -380,6 +453,7 @@ with m2:
         <div class="metric-value">299 × 299</div>
     </div>
     """, unsafe_allow_html=True)
+
 with m3:
     st.markdown("""
     <div class="metric-card">
@@ -407,6 +481,7 @@ with left_col:
 
     if uploaded_file is None:
         st.info("Drop an image here to start the prediction workflow.")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
     if uploaded_file is not None:
@@ -415,17 +490,19 @@ with left_col:
         st.write("")
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">🖼 Uploaded Preview</div>', unsafe_allow_html=True)
+        st.markdown('<div class="image-hover-wrap">', unsafe_allow_html=True)
         st.image(image, caption="Preview", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 with right_col:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">🚀 App Highlights</div>', unsafe_allow_html=True)
     st.write("• Premium animated glassmorphism UI")
+    st.write("• Hover effects across cards, hero, sidebar, and result panels")
     st.write("• Dynamic prediction reveal with confidence visualization")
     st.write("• Celebration effects after successful prediction")
-    st.write("• Model details + instructions in a clean dashboard layout")
-    st.write("• Ideal for portfolio demos and internship project showcases")
+    st.write("• Suitable for portfolio and internship project showcase")
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.write("")
@@ -553,11 +630,11 @@ with st.sidebar:
     st.markdown("""
     <div class="sidebar-card">
         <h4>🎨 UI Features</h4>
-        <p>• Animated hero section<br>
-        • Glassmorphism panels<br>
-        • Dynamic result theme<br>
-        • Confidence ring<br>
-        • Celebration effects</p>
+        <p>• Cinematic hero section<br>
+        • Hover effects on cards and result panels<br>
+        • Dynamic confidence ring<br>
+        • Celebration effects<br>
+        • Premium glassmorphism layout</p>
     </div>
     """, unsafe_allow_html=True)
 
