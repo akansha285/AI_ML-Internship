@@ -18,7 +18,7 @@ st.set_page_config(
 # ----------------------------
 @st.cache_resource
 def get_model():
-    return load_model("model.keras")
+    return load_model("mod.keras")
 
 model = get_model()
 
