@@ -104,7 +104,7 @@ def preprocess_image(img):
     img = img.resize((299, 299))
     img_array = np.array(img, dtype=np.float32) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
-return img_array
+    return img_array
 
 # ---------------- FILE UPLOADER ----------------
 
