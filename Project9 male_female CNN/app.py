@@ -93,7 +93,7 @@ unsafe_allow_html=True
 
 @st.cache_resource
 def load_my_model():
-return load_model("model.keras")
+    return load_model("model.keras")
 
 model = load_my_model()
 
