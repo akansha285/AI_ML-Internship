@@ -35,8 +35,7 @@ else:
 if not GEMINI_API_KEY:
     st.error("GEMINI_API_KEY not found. Add it in Streamlit secrets or .env file.")
     st.stop()
-
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # ============================================================
 # CUSTOM CSS
