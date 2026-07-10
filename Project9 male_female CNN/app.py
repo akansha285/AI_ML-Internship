@@ -124,7 +124,6 @@ if st.button("🔍 Predict Gender"):
         result = model.predict(img_array)
         score = float(result[0][0])
 
-        # If score > 0.5 => Male, else Female
         if score > 0.5:
             prediction = "Male 👦"
             confidence = score * 100
