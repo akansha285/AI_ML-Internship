@@ -100,10 +100,10 @@ model = load_my_model()
 # ---------------- IMAGE PREPROCESS ----------------
 
 def preprocess_image(img):
-img = img.convert("RGB")
-img = img.resize((299, 299))
-img_array = np.array(img, dtype=np.float32) / 255.0
-img_array = np.expand_dims(img_array, axis=0)
+    img = img.convert("RGB")
+    img = img.resize((299, 299))
+    img_array = np.array(img, dtype=np.float32) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 return img_array
 
 # ---------------- FILE UPLOADER ----------------
@@ -113,7 +113,7 @@ uploaded_file = st.file_uploader("📤 Upload an eye image", type=["jpg", "jpeg"
 if uploaded_file is not None:
 img = Image.open(uploaded_file).convert("RGB")
 
-```
+
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.image(img, caption="Uploaded Eye Image", use_container_width=True)
 st.markdown('</div>', unsafe_allow_html=True)
