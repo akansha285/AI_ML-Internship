@@ -77,7 +77,7 @@ background-color: #f7f9fc;
     color: white;
 }
 </style>
-```
+
 
 """, unsafe_allow_html=True)
 
@@ -111,7 +111,7 @@ return img_array
 uploaded_file = st.file_uploader("📤 Upload an eye image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-img = Image.open(uploaded_file).convert("RGB")
+    img = Image.open(uploaded_file).convert("RGB")
 
 
 st.markdown('<div class="card">', unsafe_allow_html=True)
@@ -140,7 +140,6 @@ if st.button("🔍 Predict Gender"):
         """,
         unsafe_allow_html=True
     )
-```
 
 # ---------------- FOOTER ----------------
 
