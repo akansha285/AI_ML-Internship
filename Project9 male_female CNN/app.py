@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import numpy as np
 from PIL import Image
@@ -119,4 +119,4 @@ with st.sidebar:
     st.write("- Make sure `male_female.keras` is in the same folder as `app.py`.")
     st.write("- If your model was trained on another image size, update `target_size`.")
     st.write("- If your class order differs, update `class_names`.")
-```
+
