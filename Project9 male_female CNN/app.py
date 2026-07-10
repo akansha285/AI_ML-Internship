@@ -116,8 +116,4 @@ with st.sidebar:
     st.write("2. Click **Predict**.")
     st.write("3. The model will classify the image as Male or Female.")
 
-    st.header("⚙️ Notes")
-    st.write("- Make sure `male_female.keras` is in the same folder as `app.py`.")
-    st.write("- If your model was trained on another image size, update `target_size`.")
-    st.write("- If your class order differs, update `class_names`.")
 
