@@ -1,4 +1,4 @@
-```python
+
 import os
 import pickle
 import hashlib
@@ -561,4 +561,4 @@ if st.session_state.retrieved_context:
             st.markdown(f"**Chunk {i}:**")
             st.write(chunk)
             st.markdown("---")
-```
+
