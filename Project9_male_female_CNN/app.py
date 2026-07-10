@@ -3,6 +3,11 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from tensorflow.keras.models import load_model
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "mod.keras")
+
 
 # ----------------------------
 # Page config
