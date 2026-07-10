@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 from PIL import Image
 
 # ---------------- PAGE CONFIG ----------------
@@ -13,11 +13,12 @@ layout="centered"
 
 # ---------------- CUSTOM CSS ----------------
 
-st.markdown(""" <style>
-.main {
-background-color: #f7f9fc;
-}
+st.markdown("""
 
+<style>
+.main {
+    background-color: #f7f9fc;
+}
 
 .title {
     font-size: 40px;
@@ -78,7 +79,6 @@ background-color: #f7f9fc;
 }
 </style>
 
-
 """, unsafe_allow_html=True)
 
 # ---------------- HEADER ----------------
@@ -93,7 +93,7 @@ unsafe_allow_html=True
 
 @st.cache_resource
 def load_my_model():
-    return load_model("model.keras")
+return load_model("model.keras")
 
 model = load_my_model()
 
@@ -112,7 +112,6 @@ uploaded_file = st.file_uploader("📤 Upload an eye image", type=["jpg", "jpeg"
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file).convert("RGB")
-
 
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.image(img, caption="Uploaded Eye Image", use_container_width=True)
@@ -141,9 +140,10 @@ if st.button("🔍 Predict Gender"):
         unsafe_allow_html=True
     )
 
+
 # ---------------- FOOTER ----------------
 
 st.markdown(
-'<div class="footer-text">Built with ❤️ using Streamlit & TensorFlow</div>',
+'<div class="footer-text">Built with ❤️ using Streamlit & Keras</div>',
 unsafe_allow_html=True
 )
