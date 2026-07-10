@@ -19,7 +19,7 @@ st.set_page_config(
 @st.cache_resource
 def load_gender_model():
     # Change the filename below if your model file has a different name
-    model = load_model("male_female.keras")
+    model = load_model("model.keras")
     return model
 
 model = load_gender_model()
@@ -47,7 +47,7 @@ class_names = ["Female", "Male"]
 # ----------------------------
 # Image preprocessing function
 # ----------------------------
-def preprocess_image(image, target_size=(150, 150)):
+def preprocess_image(image, target_size=(299, 299)):
     """
     Preprocess uploaded image for model prediction.
     Update target_size if your model was trained on a different size,
