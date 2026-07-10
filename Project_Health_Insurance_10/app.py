@@ -151,7 +151,7 @@ section[data-testid="stSidebar"] * {
 # ============================================================
 # CONSTANTS
 # ============================================================
-HTML_PATH_DEFAULT = "data/star_health.html"
+HTML_PATH_DEFAULT = "HealthInsurance.html"
 FAISS_FOLDER = "faiss_store"
 FAISS_INDEX_PATH = os.path.join(FAISS_FOLDER, "index.faiss")
 CHUNKS_PATH = os.path.join(FAISS_FOLDER, "chunks.pkl")
