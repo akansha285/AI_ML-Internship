@@ -139,7 +139,14 @@ section[data-testid="stSidebar"] * {
 # ============================================================
 # CONSTANTS
 # ============================================================
-HTML_PATH_DEFAULT = "HealthInsurance.html"
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+HTML_PATH_DEFAULT = os.path.join(
+    BASE_DIR,
+    "HealthInsurance.html"
+)
 
 FAISS_FOLDER = "faiss_store"
 FAISS_INDEX_PATH = os.path.join(FAISS_FOLDER, "index.faiss")
