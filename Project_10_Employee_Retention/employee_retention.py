@@ -11,7 +11,17 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
-df=pd.read_csv("employee_retention.csv")
+import os
+import pandas as pd
+
+# Get the directory where app.py is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Full path to the CSV file
+CSV_PATH = os.path.join(BASE_DIR, "employee_retention.csv")
+
+# Load the dataset
+df = pd.read_csv(CSV_PATH)
 
 #Page Configuration
 st.set_page_config(page_title="Employee Retention App",layout ="centered")
