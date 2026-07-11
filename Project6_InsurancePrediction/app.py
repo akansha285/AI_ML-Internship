@@ -15,7 +15,17 @@ st.title("💸💰 Life Insurance Prediction")
 st.write("Predict whether a person will buy life insurance based on age using Logistic Regression")
 
 # Load dataset
-df = pd.read_csv("insurance_data.csv")
+import os
+import pandas as pd
+
+# Get the folder where app.py is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Full path to insurance_data.csv
+CSV_PATH = os.path.join(BASE_DIR, "insurance_data.csv")
+
+# Load dataset
+df = pd.read_csv(CSV_PATH)
 
 st.subheader("Dataset")
 st.dataframe(df)
