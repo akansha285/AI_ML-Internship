@@ -71,4 +71,4 @@ if st.button("Predict Insurance Purchase"):
         st.error("This person is NOT likely to buy life insurance.")
 
     st.write(f"Probability of NOT buying insurance: {probability[0]:.2f}")
-    st.write(f"Probability of BUYING insurance: {probability[1]:.2f}")  give me the requirements file for this aapp.py
+    st.write(f"Probability of BUYING insurance: {probability[1]:.2f}")  
