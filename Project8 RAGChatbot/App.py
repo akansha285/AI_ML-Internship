@@ -12,6 +12,8 @@ from langchain_community.document_loaders import UnstructuredHTMLLoader
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
+import requests
+import tempfile
 
 
 # =========================
@@ -462,16 +464,19 @@ with st.sidebar:
     st.markdown("## ⚙️ Control Center")
     st.caption("Configure your RAG assistant and load the washing machine manual.")
 
-    openai_api_key = st.text_input(
-        "OpenAI API Key",
-        type="password",
-        placeholder="Paste your OpenAI API key here"
-    )
 
-    uploaded_file = st.file_uploader(
-        "Upload Samsung Manual (HTML)",
-        type=["html", "htm"]
-    )
+def download_html():
+    response = requests.get(HTML_URL)
+
+    if response.status_code != 200:
+        raise Exception("Unable to download HTML file from GitHub.")
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+
+    temp_file.write(response.content)
+    temp_file.close()
+
+    return temp_file.name
 
     st.markdown("### 🧠 Model & Chunking")
     model_name = st.selectbox(
@@ -522,7 +527,7 @@ if build_btn:
     else:
         try:
             with st.spinner("Building the RAG knowledge base... this may take a few moments."):
-                temp_html_path = save_uploaded_file(uploaded_file)
+                temp_html_path = download_html()
 
                 rag_chain, retriever, num_chunks = build_rag_pipeline(
                     html_path=temp_html_path,
