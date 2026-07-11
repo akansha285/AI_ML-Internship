@@ -353,6 +353,9 @@ def save_uploaded_file(uploaded_file):
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
         tmp_file.write(uploaded_file.getvalue())
         return tmp_file.name
+        import os
+
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
 def build_rag_pipeline(html_path, openai_api_key, model_name, chunk_size, chunk_overlap):
