@@ -355,6 +355,8 @@ def save_uploaded_file(uploaded_file):
         return tmp_file.name
         import os
 
+openai_api_key = st.secrets["OPENAI_API_KEY"]
+
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
