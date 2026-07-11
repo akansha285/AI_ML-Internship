@@ -1,10 +1,10 @@
 Click on the live link to try these apps-:
 
-Project InsurancePrediction:-https://aiml-internship-zdr8w3fnxykbwkpaccbuyn.streamlit.app/
-
 Project4-https://aiml-internship-dwbduvsm6ilnypexzek6jw.streamlit.app/
 
 Project5-https://malefemale-identifier-epdhsxppexlhjuapv7tkyj.streamlit.app/
+
+Project6-https://aiml-internship-xxyhooqyvgzfhyo6meovbc.streamlit.app/
 
 Project7-https://kmeans-cluttering-mavn4sdbboxexoo7ayzhcu.streamlit.app/
 
