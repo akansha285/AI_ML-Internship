@@ -15,7 +15,7 @@ from langchain_chroma import Chroma
 import requests
 import tempfile
 
-
+HTML_URL = "https://raw.githubusercontent.com/akansha285/AI_ML-Internship/main/Project8%20RAGChatbot/samsung.html"
 # =========================
 # PAGE CONFIG
 # =========================
@@ -357,7 +357,7 @@ def save_uploaded_file(uploaded_file):
 
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
+
 
 
 def build_rag_pipeline(html_path, openai_api_key, model_name, chunk_size, chunk_overlap):
