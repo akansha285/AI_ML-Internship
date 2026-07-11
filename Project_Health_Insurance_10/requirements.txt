@@ -1,6 +1,0 @@
-streamlit
-google-genai
-faiss-cpu
-numpy
-python-dotenv
-beautifulsoup4
