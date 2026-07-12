@@ -1,5 +1,5 @@
 streamlit>=1.30
-transformers>=4.38
+transformers>=4.38,<5.0.0
 torch>=2.1
 evaluate>=0.4
 sentencepiece
