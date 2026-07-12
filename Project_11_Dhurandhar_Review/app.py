@@ -149,7 +149,7 @@ if data_source == "GitHub URL":
     )
     github_url = st.sidebar.text_input(
         "GitHub CSV URL",
-        placeholder="https://github.com/user/repo/blob/main/data/reviews.csv",
+        placeholder="https://github.com/akansha285/AI_ML-Internship/blob/main/Project_11_Dhurandhar_Review/netflix%20movie%20dhurandhar%202.csv",
     )
     github_token = st.sidebar.text_input(
         "GitHub token (optional, for private repos)", type="password"
