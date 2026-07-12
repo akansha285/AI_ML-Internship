@@ -30,33 +30,101 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------
-# Cached model loaders — each pipeline is loaded once and reused
+# Cached model loaders
 # ----------------------------------------------------------------------
+# NOTE: We deliberately avoid `pipeline("summarization"/"translation_en_to_es"/
+# "question-answering", ...)`. Some environments resolve a very recent
+# `transformers` release whose pipeline *task registry* no longer includes
+# those exact task-name strings (only e.g. "sentiment-analysis",
+# "text-classification", etc. are guaranteed present), which raises
+# `KeyError: Unknown task ...`. Loading the tokenizer/model directly and
+# running inference by hand sidesteps that registry entirely, so the app
+# keeps working no matter which transformers version gets installed.
+
 @st.cache_resource(show_spinner="Loading sentiment analysis model...")
 def load_sentiment_pipeline():
     from transformers import pipeline
+    # "text-classification" is the canonical, stable task name
+    # ("sentiment-analysis" is just an alias for it).
     return pipeline(
-        "sentiment-analysis",
+        "text-classification",
         model="distilbert-base-uncased-finetuned-sst-2-english",
     )
 
 
 @st.cache_resource(show_spinner="Loading translation model...")
-def load_translation_pipeline():
-    from transformers import pipeline
-    return pipeline("translation_en_to_es", model="Helsinki-NLP/opus-mt-en-es")
+def load_translation_model():
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    model_name = "Helsinki-NLP/opus-mt-en-es"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    model.eval()
+    return tokenizer, model
+
+
+def translate_text(text: str) -> str:
+    import torch
+    tokenizer, model = load_translation_model()
+    inputs = tokenizer(text, return_tensors="pt", truncation=True)
+    with torch.no_grad():
+        output_ids = model.generate(**inputs, max_new_tokens=256)
+    return tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
 
 @st.cache_resource(show_spinner="Loading question answering model...")
-def load_qa_pipeline():
-    from transformers import pipeline
-    return pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
+def load_qa_model():
+    from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+    model_name = "distilbert-base-cased-distilled-squad"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForQuestionAnswering.from_pretrained(model_name)
+    model.eval()
+    return tokenizer, model
+
+
+def answer_question(question: str, context: str) -> dict:
+    import torch
+    tokenizer, model = load_qa_model()
+    inputs = tokenizer(
+        question, context, return_tensors="pt", truncation=True, max_length=384
+    )
+    with torch.no_grad():
+        outputs = model(**inputs)
+    start_logits, end_logits = outputs.start_logits, outputs.end_logits
+    start_idx = int(torch.argmax(start_logits))
+    end_idx = int(torch.argmax(end_logits))
+    if end_idx < start_idx:
+        end_idx = start_idx
+    answer_ids = inputs["input_ids"][0][start_idx : end_idx + 1]
+    answer = tokenizer.decode(answer_ids, skip_special_tokens=True)
+    score = float(
+        torch.softmax(start_logits, dim=-1)[0][start_idx]
+        * torch.softmax(end_logits, dim=-1)[0][end_idx]
+    )
+    return {"answer": answer if answer.strip() else "(no answer found)", "score": score}
 
 
 @st.cache_resource(show_spinner="Loading summarization model...")
-def load_summarization_pipeline():
-    from transformers import pipeline
-    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+def load_summarization_model():
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    model_name = "sshleifer/distilbart-cnn-12-6"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    model.eval()
+    return tokenizer, model
+
+
+def summarize_text(text: str, max_length: int = 60, min_length: int = 15) -> str:
+    import torch
+    tokenizer, model = load_summarization_model()
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=1024)
+    with torch.no_grad():
+        output_ids = model.generate(
+            **inputs,
+            max_length=max_length,
+            min_length=min(min_length, max_length - 1),
+            do_sample=False,
+        )
+    return tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
 
 @st.cache_resource(show_spinner=False)
@@ -149,7 +217,7 @@ if data_source == "GitHub URL":
     )
     github_url = st.sidebar.text_input(
         "GitHub CSV URL",
-        placeholder="https://github.com/akansha285/AI_ML-Internship/blob/main/Project_11_Dhurandhar_Review/netflix%20movie%20dhurandhar%202.csv",
+        placeholder="https://github.com/user/repo/blob/main/data/reviews.csv",
     )
     github_token = st.sidebar.text_input(
         "GitHub token (optional, for private repos)", type="password"
@@ -263,8 +331,7 @@ with tab_translate:
     text_to_translate = custom_text.strip() if custom_text.strip() else selected_review
 
     if st.button("Translate", type="primary"):
-        translator = load_translation_pipeline()
-        translation = translator(text_to_translate)[0]["translation_text"]
+        translation = translate_text(text_to_translate)
         st.write("**Original (EN):**", text_to_translate)
         st.write("**Translation (ES):**", translation)
 
@@ -283,8 +350,7 @@ with tab_qa:
     question = st.text_input("Question", value="What did the reviewer think of the movie?")
 
     if st.button("Get Answer", type="primary"):
-        qa_pipeline = load_qa_pipeline()
-        result = qa_pipeline(question=question, context=context)
+        result = answer_question(question, context)
         st.write("**Answer:**", result["answer"])
         st.write(f"**Confidence:** {result['score']:.2%}")
 
@@ -304,10 +370,9 @@ with tab_summary:
     min_len = st.slider("Min summary length", 5, max_len - 1, min(15, max_len - 1))
 
     if st.button("Summarize", type="primary"):
-        summarizer = load_summarization_pipeline()
-        summary = summarizer(all_reviews_text, max_length=max_len, min_length=min_len, do_sample=False)
+        summary = summarize_text(all_reviews_text, max_length=max_len, min_length=min_len)
         st.write("**Summary:**")
-        st.info(summary[0]["summary_text"])
+        st.info(summary)
 
 # ----------------------------------------------------------------------
 # Tab 5: Evaluation
@@ -356,9 +421,8 @@ with tab_eval:
         if len(refs) != len(reviews):
             st.error(f"Expected {len(reviews)} reference lines (one per review), got {len(refs)}.")
         else:
-            translator = load_translation_pipeline()
             metrics = load_metrics()
-            predictions = [translator(r)[0]["translation_text"] for r in reviews]
+            predictions = [translate_text(r) for r in reviews]
             bleu_result = metrics["bleu"].compute(
                 predictions=predictions, references=[[r] for r in refs]
             )
