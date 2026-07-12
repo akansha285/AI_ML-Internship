@@ -1,0 +1,7 @@
+streamlit>=1.30
+transformers>=4.38
+torch>=2.1
+evaluate>=0.4
+sentencepiece
+sacremoses
+requests
