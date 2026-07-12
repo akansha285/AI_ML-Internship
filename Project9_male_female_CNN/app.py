@@ -422,7 +422,7 @@ st.markdown("""
 <div class="hero">
     <div class="hero-content">
         <div class="hero-badge">✨ Premium AI Vision Interface</div>
-        <h1 class="hero-title">VisionGender AI — Male / Female Image Classifier</h1>
+        <h1 class="hero-title">VisionGender AI — Male / Female Eye Classifier</h1>
         <p class="hero-subtitle">
             Upload an image and get an AI-powered gender prediction with a polished dashboard, dynamic result cards,
             hover interactions, animated confidence visuals, and a more impressive project presentation.
@@ -508,7 +508,7 @@ with right_col:
     st.write("")
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">🧭 Prediction Flow</div>', unsafe_allow_html=True)
-    st.write("1. Upload a face image")
+    st.write("1. Upload an eye image")
     st.write("2. Click **Predict Now**")
     st.write("3. Model processes the image")
     st.write("4. Result + confidence appear with visual feedback")
